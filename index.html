@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Matthew — Coding AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#08090c;--surface:#0f1014;--surface2:#16171d;
+  --border:rgba(255,255,255,0.08);--accent:#c8f135;
+  --accent-dim:rgba(200,241,53,0.1);--text:#eeeef2;
+  --muted:rgba(238,238,242,0.42);--r:14px;
+  --font-code:'JetBrains Mono',monospace;
+  --font-display:'Syne',sans-serif;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font-code);overflow:hidden}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse 55% 45% at 85% 5%,rgba(200,241,53,0.05) 0%,transparent 65%),
+    radial-gradient(ellipse 40% 35% at 5% 90%,rgba(100,80,255,0.07) 0%,transparent 60%);
+}
+#app{position:relative;z-index:1;display:flex;flex-direction:column;height:100vh;max-width:820px;margin:0 auto}
+
+header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 24px;border-bottom:1px solid var(--border);
+  background:rgba(8,9,12,0.75);backdrop-filter:blur(16px);flex-shrink:0;
+}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-sq{
+  width:32px;height:32px;background:var(--accent);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);font-weight:800;font-size:16px;color:#08090c;flex-shrink:0;
+}
+.logo-name{font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--text)}
+.logo-tag{font-size:11px;color:var(--accent);background:var(--accent-dim);border:1px solid rgba(200,241,53,0.22);padding:2px 8px;border-radius:20px}
+
+#msgs{flex:1;overflow-y:auto;padding:28px 20px;display:flex;flex-direction:column;gap:20px;scroll-behavior:smooth}
+#msgs::-webkit-scrollbar{width:4px}
+#msgs::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.09);border-radius:2px}
+
+.msg{display:flex;flex-direction:column;gap:5px;animation:fadeUp 0.22s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+.msg.user{align-items:flex-end}
+.msg.ai{align-items:flex-start}
+.msg-label{font-size:10px;color:var(--muted);letter-spacing:0.09em;text-transform:uppercase;padding:0 4px}
+.msg-bubble{
+  max-width:90%;padding:12px 16px;border-radius:var(--r);
+  font-size:14px;line-height:1.72;border:1px solid var(--border);
+}
+.msg.user .msg-bubble{background:#1a1b22;border-color:rgba(255,255,255,0.1);border-bottom-right-radius:4px}
+.msg.ai .msg-bubble{background:var(--surface);border-bottom-left-radius:4px;max-width:100%}
+
+.msg-bubble p{margin-bottom:.65em}.msg-bubble p:last-child{margin-bottom:0}
+.msg-bubble strong{color:var(--accent);font-weight:500}
+.msg-bubble em{color:var(--muted);font-style:italic}
+.msg-bubble ul,.msg-bubble ol{padding-left:1.4em;margin-bottom:.65em}
+.msg-bubble li{margin-bottom:.2em}
+.msg-bubble h1,.msg-bubble h2,.msg-bubble h3{font-family:var(--font-display);color:var(--text);margin-bottom:.5em;margin-top:.9em}
+.msg-bubble h1:first-child,.msg-bubble h2:first-child,.msg-bubble h3:first-child{margin-top:0}
+.msg-bubble h1{font-size:18px}.msg-bubble h2{font-size:16px}.msg-bubble h3{font-size:14px;font-weight:700}
+.msg-bubble a{color:var(--accent);text-decoration:none}.msg-bubble a:hover{text-decoration:underline}
+.msg-bubble hr{border:none;border-top:1px solid var(--border);margin:1em 0}
+.msg-bubble code:not(pre code){
+  background:#1a1c24;border:1px solid rgba(255,255,255,0.1);color:#c8f135;
+  padding:1px 6px;border-radius:5px;font-size:12.5px;font-family:var(--font-code);
+}
+.code-wrap{position:relative;margin:10px 0;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,0.1)}
+.code-header{display:flex;align-items:center;justify-content:space-between;background:#111318;padding:8px 14px;border-bottom:1px solid rgba(255,255,255,0.07)}
+.code-lang{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.copy-btn{
+  font-size:11px;color:var(--muted);background:none;border:1px solid var(--border);
+  padding:3px 10px;border-radius:6px;cursor:pointer;font-family:var(--font-code);transition:all .18s;
+}
+.copy-btn:hover{color:var(--accent);border-color:rgba(200,241,53,0.4)}
+.copy-btn.copied{color:var(--accent);border-color:var(--accent)}
+.code-wrap pre{margin:0;overflow-x:auto}
+.code-wrap pre code{font-size:13px!important;line-height:1.6!important;padding:14px!important;font-family:var(--font-code)!important}
+
+.thinking{display:flex;align-items:center;gap:8px;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);border-bottom-left-radius:4px;width:fit-content}
+.dots{display:flex;gap:4px}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--accent);animation:blink 1.2s infinite}
+.dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.15}40%{opacity:1}}
+.thinking-text{font-size:12px;color:var(--muted)}
+
+#welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;padding:40px 20px;text-align:center;gap:28px}
+.w-title{font-family:var(--font-display);font-size:52px;font-weight:800;letter-spacing:-1.5px;line-height:1}
+.w-title span{color:var(--accent)}
+.w-sub{font-size:13.5px;color:var(--muted);max-width:380px;line-height:1.75}
+.suggestions{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:580px}
+.sug-chip{
+  background:var(--surface2);border:1px solid var(--border);padding:8px 16px;
+  border-radius:40px;font-size:12.5px;color:var(--muted);cursor:pointer;
+  transition:all .18s;font-family:var(--font-code);
+}
+.sug-chip:hover{border-color:rgba(200,241,53,0.4);color:var(--accent);background:var(--accent-dim)}
+
+#input-area{
+  padding:14px 20px 18px;border-top:1px solid var(--border);
+  background:rgba(8,9,12,0.75);backdrop-filter:blur(16px);flex-shrink:0;
+}
+.input-wrap{
+  display:flex;align-items:flex-end;gap:10px;background:var(--surface2);
+  border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;
+  transition:border-color .18s;
+}
+.input-wrap:focus-within{border-color:rgba(200,241,53,0.38)}
+#user-input{
+  flex:1;background:none;border:none;outline:none;color:var(--text);
+  font-family:var(--font-code);font-size:14px;resize:none;max-height:200px;
+  min-height:24px;line-height:1.6;
+}
+#user-input::placeholder{color:var(--muted)}
+#send-btn{
+  width:34px;height:34px;background:var(--accent);border:none;border-radius:9px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:all .18s;
+}
+#send-btn:hover{transform:scale(1.06)}
+#send-btn:active{transform:scale(0.95)}
+#send-btn:disabled{opacity:.28;cursor:not-allowed;transform:none}
+#send-btn svg{width:16px;height:16px}
+.input-hint{font-size:10.5px;color:rgba(238,238,242,0.28);margin-top:7px;text-align:center}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="logo">
+      <div class="logo-sq">M</div>
+      <span class="logo-name">Matthew</span>
+    </div>
+    <span class="logo-tag">coding ai · no limits</span>
+  </header>
+
+  <div id="welcome">
+    <div>
+      <div class="w-title">Hey, I'm <span>Matthew.</span></div>
+      <div class="w-title" style="color:var(--muted);font-size:30px;margin-top:8px">What are we building?</div>
+    </div>
+    <p class="w-sub">A no-limits coding AI. Scripts, exploits, automation, architecture, reverse engineering — bring it.</p>
+    <div class="suggestions">
+      <div class="sug-chip" onclick="fillInput('Write a Python web scraper with rotating proxies and anti-bot evasion')">Python scraper + proxies</div>
+      <div class="sug-chip" onclick="fillInput('Build a REST API in Node.js with JWT auth and rate limiting')">Node.js REST API</div>
+      <div class="sug-chip" onclick="fillInput('Write a bash script to automate SSH backups across multiple servers')">Bash SSH automation</div>
+      <div class="sug-chip" onclick="fillInput('Explain how buffer overflow exploits work with working C code examples')">Buffer overflow exploit</div>
+      <div class="sug-chip" onclick="fillInput('Create a React drag-and-drop kanban board from scratch')">React kanban board</div>
+      <div class="sug-chip" onclick="fillInput('Write a SQL injection example and full prevention guide')">SQL injection + fix</div>
+      <div class="sug-chip" onclick="fillInput('Write a keylogger in Python for educational purposes')">Python keylogger</div>
+      <div class="sug-chip" onclick="fillInput('Build a port scanner in Python like nmap')">Port scanner</div>
+    </div>
+  </div>
+
+  <div id="msgs" style="display:none"></div>
+
+  <div id="input-area">
+    <div class="input-wrap">
+      <textarea id="user-input" placeholder="Ask Matthew anything..." rows="1"></textarea>
+      <button id="send-btn" onclick="sendMessage()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#08090c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>
+        </svg>
+      </button>
+    </div>
+    <div class="input-hint">Matthew · Powered by Gemini 2.0 Flash · Shift+Enter for new line</div>
+  </div>
+</div>
+
+<script>
+const msgs = [];
+let busy = false;
+
+const msgsEl = document.getElementById('msgs');
+const welcomeEl = document.getElementById('welcome');
+const inputEl = document.getElementById('user-input');
+const sendBtn = document.getElementById('send-btn');
+
+function fillInput(t){inputEl.value=t;inputEl.focus();autoResize()}
+
+function autoResize(){
+  inputEl.style.height='auto';
+  inputEl.style.height=Math.min(inputEl.scrollHeight,200)+'px';
+}
+inputEl.addEventListener('input',autoResize);
+inputEl.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}
+});
+
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+function renderMd(text){
+  let h=esc(text);
+  // fenced code blocks
+  h=h.replace(/```(\w*)\n?([\s\S]*?)```/g,(_,lang,code)=>{
+    const id='cb'+Math.random().toString(36).slice(2,8);
+    const raw=code.trim();
+    const hi=lang&&hljs.getLanguage(lang)?hljs.highlight(raw,{language:lang}).value:hljs.highlightAuto(raw).value;
+    const b64=btoa(unescape(encodeURIComponent(raw)));
+    return `<div class="code-wrap"><div class="code-header"><span class="code-lang">${lang||'code'}</span><button class="copy-btn" id="${id}" onclick="copyCode('${id}','${b64}')">copy</button></div><pre><code class="hljs">${hi}</code></pre></div>`;
+  });
+  h=h.replace(/`([^`\n]+)`/g,'<code>$1</code>');
+  h=h.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+  h=h.replace(/\*(.+?)\*/g,'<em>$1</em>');
+  h=h.replace(/^### (.+)$/gm,'<h3>$1</h3>');
+  h=h.replace(/^## (.+)$/gm,'<h2>$1</h2>');
+  h=h.replace(/^# (.+)$/gm,'<h1>$1</h1>');
+  h=h.replace(/^---$/gm,'<hr>');
+  h=h.replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2" target="_blank">$1</a>');
+  // list items
+  h=h.replace(/^[ \t]*[-*] (.+)$/gm,'<li>$1</li>');
+  h=h.replace(/^[ \t]*\d+\. (.+)$/gm,'<li>$1</li>');
+  // wrap consecutive <li> in <ul>
+  h=h.replace(/(<li>(?:.*\n?)*?<\/li>)/g,'<ul>$1</ul>');
+  // paragraphs
+  h=h.split('\n').map(line=>{
+    if(/^<(h[123]|ul|ol|li|pre|div|hr|p)/.test(line.trim())||line.trim()==='')return line;
+    return line.trim()?`<p>${line}</p>`:line;
+  }).join('\n');
+  return h;
+}
+
+function copyCode(id,b64){
+  const text=decodeURIComponent(escape(atob(b64)));
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn=document.getElementById(id);
+    btn.textContent='copied!';btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='copy';btn.classList.remove('copied')},2000);
+  });
+}
+
+function showMsgs(){
+  if(welcomeEl.style.display!=='none'){
+    welcomeEl.style.display='none';
+    msgsEl.style.display='flex';
+  }
+}
+
+function addMsg(role,content){
+  showMsgs();
+  const wrap=document.createElement('div');
+  wrap.className=`msg ${role}`;
+  const lbl=document.createElement('div');
+  lbl.className='msg-label';
+  lbl.textContent=role==='user'?'you':'matthew';
+  const bubble=document.createElement('div');
+  bubble.className='msg-bubble';
+  if(role==='user') bubble.textContent=content;
+  else bubble.innerHTML=renderMd(content);
+  wrap.appendChild(lbl);wrap.appendChild(bubble);
+  msgsEl.appendChild(wrap);
+  msgsEl.scrollTop=msgsEl.scrollHeight;
+  return bubble;
+}
+
+function showThinking(){
+  showMsgs();
+  const wrap=document.createElement('div');
+  wrap.className='msg ai';wrap.id='thinking';
+  const lbl=document.createElement('div');
+  lbl.className='msg-label';lbl.textContent='matthew';
+  const t=document.createElement('div');
+  t.className='thinking';
+  t.innerHTML='<div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><span class="thinking-text">thinking...</span>';
+  wrap.appendChild(lbl);wrap.appendChild(t);
+  msgsEl.appendChild(wrap);
+  msgsEl.scrollTop=msgsEl.scrollHeight;
+}
+function removeThinking(){const t=document.getElementById('thinking');if(t)t.remove()}
+
+async function sendMessage(){
+  const text=inputEl.value.trim();
+  if(!text||busy)return;
+  busy=true;sendBtn.disabled=true;
+  inputEl.value='';autoResize();
+
+  addMsg('user',text);
+  msgs.push({role:'user',content:text});
+  showThinking();
+
+  try{
+    const res=await fetch('/api/chat',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({messages:msgs})
+    });
+    removeThinking();
+    if(!res.ok){
+      const err=await res.json().catch(()=>({}));
+      addMsg('ai',`**Error ${res.status}:** ${err.error||'Something went wrong. Check your API key.'}`);
+      msgs.pop();
+    }else{
+      const data=await res.json();
+      const reply=data.content[0].text;
+      addMsg('ai',reply);
+      msgs.push({role:'assistant',content:reply});
+    }
+  }catch(e){
+    removeThinking();
+    addMsg('ai',`**Network error:** ${e.message}`);
+    msgs.pop();
+  }
+
+  busy=false;sendBtn.disabled=false;inputEl.focus();
+}
+</script>
+</body>
+</html>
